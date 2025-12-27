@@ -49,7 +49,20 @@ Pastikan Anda memiliki akun Google Earth Engine. Script ini akan mengunduh data 
 cd src/data
 python download_gee.py
 ```
-
+### 3. Preprocessing
+Memotong citra besar menjadi patches berukuran 128×128 dan mengompresi format penyimpanan (.npz).
+``` bash
+python preprocess.py
+```
+### 4. Training
+Jalankan pelatihan model. Model terbaik akan disimpan sebagai best_model.pth.
+```bash
+cd ../..
+python train.py
+```
+## 📊 Dataset
+- Input: Sentinel-2 Level-2A (Surface Reflectance). 12 Time-steps (Jan-Des), 10 Spectral Bands.
+- Target: ESA CCI Biomass (v4), di-resample ke 10m spatial resolution.
 
 ## 📄 References
 
