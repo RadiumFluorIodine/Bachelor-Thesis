@@ -23,11 +23,18 @@ biomass-utae-lampung/
 
 ## 🚀 Cara Penggunaan
 
-1. Instalasi
+### 1. Instalasi
 Pastikan Anda menggunakan Python 3.8+ dan GPU NVIDIA (Disarankan).
 ```bash
 pip install -r requirements.txt
 ```
+### 2. Download Data
+Pastikan Anda memiliki akun Google Earth Engine. Script ini akan mengunduh data Sentinel-2 dan ESA CCI AGB untuk wilayah Lampung dan Kalimantan Selatan.
+```bash
+cd src/data
+python download_gee.py
+```
+
 
 ## 📄 References
 
