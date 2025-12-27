@@ -25,8 +25,9 @@ biomass-utae-lampung/
 
 1. Instalasi
 Pastikan Anda menggunakan Python 3.8+ dan GPU NVIDIA (Disarankan).
+```bash
 pip install -r requirements.txt
-
+```
 
 ## 📄 References
 
