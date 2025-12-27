@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn
 
+# ==========================================
+#  DEEP LEARNING BASELINES 
+# ==========================================
+
 class ConvBlock(nn.Module):
     def __init__(self, in_c, out_c):
         super().__init__()
@@ -92,3 +96,103 @@ class AGBUNet(nn.Module):
         d1 = self.dec1(torch.cat([self.up(d2), e1], 1))
         
         return self.final(d1)
+
+# ==========================================
+#  MACHINE LEARNING BASELINES
+# ==========================================
+
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+try:
+    from xgboost import XGBRegressor
+except ImportError:
+    XGBRegressor = None # Handle jika user belum install xgboost
+
+class PixelWiseML:
+    """
+    Wrapper untuk model Machine Learning Scikit-Learn/XGBoost 
+    agar bisa memproses data citra satelit.
+    
+    Model ini bekerja secara 'Pixel-Wise' (per piksel dianggap 1 sampel data).
+    """
+    def __init__(self, model_type='rf'):
+        self.model_type = model_type
+        
+        if model_type == 'rf':
+            # n_jobs=-1 agar menggunakan semua CPU core
+            self.model = RandomForestRegressor(n_estimators=100, max_depth=20, n_jobs=-1, random_state=42)
+        elif model_type == 'lr':
+            self.model = LinearRegression()
+        elif model_type == 'xgb':
+            if XGBRegressor is None:
+                raise ImportError("Library XGBoost belum terinstall. Pip install xgboost dulu.")
+            # Tree method 'hist' lebih cepat untuk data besar
+            self.model = XGBRegressor(n_estimators=100, learning_rate=0.1, n_jobs=-1, random_state=42)
+        else:
+            raise ValueError(f"Model {model_type} tidak dikenali.")
+
+    def prepare_data(self, loader, device='cpu'):
+        """
+        Mengubah DataLoader (Batch, Time, Channel, H, W) 
+        menjadi Tabel 2D (N_Pixels, Channels) untuk Scikit-Learn.
+        """
+        X_list, y_list = [], []
+        
+        print(f"⚙️  Mempersiapkan data untuk {self.model_type.upper()} (Flattening)...")
+        for img, lbl, _ in loader:
+            # img: (B, T, C, H, W) -> Ambil Mean Temporal -> (B, C, H, W)
+            # ML klasik tidak bisa handle time-series raw, jadi kita rata-rata dulu
+            if img.dim() == 5:
+                img = img.mean(dim=1)
+            
+            # Pindah ke CPU & Numpy
+            img_np = img.numpy() # (B, C, H, W)
+            lbl_np = lbl.numpy() # (B, 1, H, W)
+            
+            # Reshape ke (N, C)
+            # Permute jadi (B, H, W, C) lalu flatten
+            B, C, H, W = img_np.shape
+            features = img_np.transpose(0, 2, 3, 1).reshape(-1, C) # (TotalPixels, 10)
+            targets = lbl_np.transpose(0, 2, 3, 1).reshape(-1)     # (TotalPixels,)
+            
+            # FILTER: Hanya ambil pixel yang ada datanya (Label != 0)
+            # Ini PENTING agar RAM tidak jebol oleh background hitam
+            mask = targets > 0
+            if mask.sum() > 0:
+                X_list.append(features[mask])
+                y_list.append(targets[mask])
+                
+        # Gabung semua batch
+        if len(X_list) > 0:
+            X_all = np.concatenate(X_list, axis=0)
+            y_all = np.concatenate(y_list, axis=0)
+            return X_all, y_all
+        else:
+            return np.array([]), np.array([])
+
+    def fit(self, train_loader):
+        # 1. Siapkan Data
+        X_train, y_train = self.prepare_data(train_loader)
+        
+        if len(X_train) == 0:
+            print("⚠️ Warning: Tidak ada data training valid (semua nol).")
+            return
+            
+        print(f"🚀 Training {self.model_type.upper()} pada {X_train.shape[0]} piksel...")
+        # 2. Training (Fit)
+        self.model.fit(X_train, y_train)
+        print("✅ Training selesai.")
+
+    def predict(self, val_loader):
+        # Mirip prepare data tapi kita simpan prediksi
+        X_val, y_val = self.prepare_data(val_loader)
+        
+        if len(X_val) == 0: return 0.0
+        
+        # Prediksi
+        y_pred = self.model.predict(X_val)
+        
+        # Hitung RMSE manual di sini
+        mse = np.mean((y_val - y_pred) ** 2)
+        return np.sqrt(mse)
