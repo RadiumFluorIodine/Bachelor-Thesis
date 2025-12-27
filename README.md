@@ -4,7 +4,7 @@ Repository ini berisi implementasi Deep Learning *Spatio-Temporal* untuk estimas
 
 ## 🧠 Arsitektur Model
 
-[cite_start]Model didasarkan pada arsitektur U-TAE [cite: 13, 143] yang menggabungkan:
+Model didasarkan pada arsitektur U-TAE  yang menggabungkan:
 1.  **Spatial Encoder:** Memproses setiap frame waktu Sentinel-2 secara independen.
-2.  [cite_start]**L-TAE (Lightweight Temporal Attention Encoder):** Mekanisme atensi efisien [cite: 5, 458] untuk mengompresi dimensi waktu ($T$) menjadi representasi fitur tunggal yang kaya informasi.
+2.  **L-TAE (Lightweight Temporal Attention Encoder):** Mekanisme atensi efisien [cite: 5, 458] untuk mengompresi dimensi waktu ($T$) menjadi representasi fitur tunggal yang kaya informasi.
 3.  **Decoder:** Mengembalikan resolusi spasial untuk menghasilkan peta regresi biomassa (pixel-wise).
