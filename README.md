@@ -13,12 +13,27 @@ Model didasarkan pada arsitektur U-TAE  yang menggabungkan:
 
 ```text
 biomass-utae-lampung/
-├── data/               # Penyimpanan dataset (Raw & Processed)
+│
+├── data/
+│   ├── raw/                  # Tempat file .tif hasil download GEE
+│   └── processed/            # Tempat dataset siap pakai (.npz)
+│
 ├── src/
-│   ├── data/           # Script download (GEE) & preprocessing
-│   └── models/         # Definisi model L-TAE & U-TAE
-├── train.py            # Script pelatihan utama
-└── requirements.txt    # Dependensi Python
+│   ├── __init__.py
+│   ├── data/                 # Modul pengolahan data
+│   │   ├── __init__.py
+│   │   ├── download_gee.py   # Script download dari Google Earth Engine
+│   │   ├── preprocess.py     # Script potong patch (tiling) & kompresi
+│   │   └── dataset.py        # PyTorch Dataset Loader
+│   │
+│   └── models/               # Arsitektur Neural Network
+│       ├── __init__.py
+│       ├── ltae.py           # Modul Lightweight Temporal Attention
+│       └── utae.py           # Modul U-TAE untuk Regresi
+│
+├── train.py                  # Script utama pelatihan (Main Loop)
+├── requirements.txt          # Daftar dependensi
+└── README.md                 # Dokumentasi Proyek
 ```
 
 ## 🚀 Cara Penggunaan
