@@ -71,3 +71,6 @@ python train.py
 [2] V. S. F. Garnot and L. Landrieu, "Lightweight Temporal Self-Attention for Classifying Satellite Images Time Series," in *Advanced Analytics and Learning on Temporal Data (AALTD)*, 2020. [cite: 456, 457, 465]
 
 [3] Priamus Lab, "ReUse: Reusing the Derived Features of the Pretext Task for Semantic Segmentation," GitHub Repository, 2024. [Online]. Available: https://github.com/priamus-lab/ReUse.
+
+
+## Update Coming Soon
