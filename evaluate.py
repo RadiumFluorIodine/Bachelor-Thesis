@@ -39,7 +39,7 @@ def evaluate():
             # Simpan hasil (Flatkan array untuk statistik)
             # Ambil region yang valid (Label != 0) untuk evaluasi yang adil
             # agar background hitam tidak menaikkan akurasi secara palsu
-            mask = lbl > 0 
+            mask = lbl >= 0 
             
             if mask.sum() > 0:
                 y_true.extend(lbl[mask].cpu().numpy().flatten())
